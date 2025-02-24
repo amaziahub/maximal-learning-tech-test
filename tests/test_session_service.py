@@ -1,15 +1,8 @@
 from unittest.mock import patch
 
 import pytest
-from hamcrest import assert_that, equal_to, has_item, is_not, instance_of, is_
+from hamcrest import assert_that, equal_to, has_item, is_not, instance_of, is_, none
 from tech_test.session_service import SessionService, InvalidSessionError
-
-
-@pytest.fixture(autouse=True)
-def cleanup_sessions(session_service):
-    session_service.sessions.clear()
-    session_service.current_session = None
-    yield
 
 
 @pytest.fixture
@@ -57,7 +50,7 @@ def test_answer_question_correctly(session_service):
     score = session_service.answer_question(session_id, user_id, user_answer)
 
     assert_that(score, equal_to(100))
-    assert_that(session_service.user_scores[user_id], equal_to(100))
+    assert_that(session_service.user_scores[user_id][0], equal_to(100))
 
 
 @patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)
@@ -70,7 +63,7 @@ def test_answer_question_incorrectly(session_service):
     score = session_service.answer_question(session_id, user_id, user_answer)
 
     assert_that(score, equal_to(0))
-    assert_that(session_service.user_scores[user_id], equal_to(0))
+    assert_that(session_service.user_scores, equal_to({}))
 
 
 @patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)
@@ -86,7 +79,7 @@ def test_answer_question_with_highest_score(session_service):
     wrong_user_answer = "Pariss"
     session_service.answer_question(wrong_answer_session_id, wrong_user_id, wrong_user_answer)
 
-    assert_that(session_service.user_scores[correct_user_id], equal_to(100))
+    assert_that(session_service.user_scores[correct_user_id][0], equal_to(100))
 
 
 @patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)
@@ -102,12 +95,12 @@ def test_answer_question_with_higher_score(session_service):
     wrong_answer = "London"
     session_service.answer_question(wrong_answer_session_id, wrong_user_id, wrong_answer)
 
-    assert_that(session_service.user_scores[close_to_correct_user_id], equal_to(80))
+    assert_that(session_service.user_scores[close_to_correct_user_id][0], equal_to(80))
 
     correct_answer = "Paris"
     session_service.answer_question(wrong_answer_session_id, wrong_user_id, correct_answer)
 
-    assert_that(session_service.user_scores[wrong_user_id], equal_to(100))
+    assert_that(session_service.user_scores[wrong_user_id][0], equal_to(100))
 
 
 @patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)

@@ -44,8 +44,9 @@ class SessionService:
         quiz_service = QuizService()
         score = quiz_service.check_answer(question_id, answer)
 
-        if user_id not in self.user_scores or score > self.user_scores[user_id]:
-            self.user_scores[user_id] = score
+        current_top_score, current_top_user = self.user_scores.get(session_id, (0, None))
+        if score > current_top_score:
+            self.user_scores[user_id] = (score, session_id)
 
         return score
 
