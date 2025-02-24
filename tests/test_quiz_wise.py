@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from hamcrest import assert_that
 
 from tech_test.quiz_wize import QuizWise
 from tech_test.timer_service import TimerService
@@ -32,4 +33,13 @@ def test_game_scenario_with_session_refresh_and_timer(quizwise):
 
     quizwise.submit_answer(session_id_1, user_id_1, "Paris")
     quizwise.submit_answer(session_id_2, user_id_2, "Lyon")
+
+    score_service = quizwise.get_score(session_id_1, user_id_1)
+    assert_that(score_service, "Session is still ongoing, please wait.")
+
+    timer_service.run = lambda: quizwise.session_service.refresh_session()
+    timer_service.run()
+
+    score_service = quizwise.get_score(session_id_1, user_id_1)
+    assert_that(score_service,"You won! you scored: 100")
 

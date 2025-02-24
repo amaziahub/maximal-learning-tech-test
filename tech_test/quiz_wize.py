@@ -10,5 +10,6 @@ class QuizWise:
     def submit_answer(self, session_id, user_id, answer):
         self.session_service.answer_question(session_id, user_id, answer)
 
-    def keep_alive(self, session_id, user_id):
-        return self.session_service.keep_alive(session_id, user_id)
+    def get_score(self, session_id, user_id):
+        return self.session_service.get_score(session_id, user_id)
+

@@ -9,6 +9,7 @@ class SessionService:
         self.current_session = {}
         self.sessions = []
         self.user_scores = {}
+        self.session_closed = False
 
     def init_session(self):
 
@@ -33,6 +34,7 @@ class SessionService:
         self.current_session = new_session
 
         self.sessions.append(self.current_session)
+        self.session_closed = False
 
         return self.current_session
 
@@ -51,13 +53,28 @@ class SessionService:
         return score
 
     def refresh_session(self):
-        if self.current_session:
-            self.sessions.append(self.current_session)
+        if self.current_session and not self.session_closed:
+            self.close_session()
+
         self.current_session = None
         return self.init_session()
 
-    def keep_alive(self, session_id, user_id):
-        pass
+    def get_score(self, session_id, user_id):
+        if self.session_closed:
+            top_score, top_user_id = self.user_scores.get(session_id, (None, None))
+
+            if top_user_id is None:
+                return "No scores submitted yet."
+            elif top_user_id == user_id:
+                return f"You won! you scored: {top_score}"
+            else:
+                return f"You lost! The top scorer is {top_user_id} with a score of {top_score}"
+        else:
+            return "Session is still ongoing, please wait."
+
+    def close_session(self):
+        self.session_closed = True
+        return "Session closed and finalized."
 
 
 class InvalidSessionError(Exception):
