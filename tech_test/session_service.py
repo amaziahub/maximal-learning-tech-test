@@ -8,6 +8,7 @@ class SessionService:
     def __init__(self):
         self.current_session = {}
         self.sessions = []
+        self.user_scores = {}
 
     def init_session(self):
         session_id = str(uuid.uuid4())
@@ -30,6 +31,19 @@ class SessionService:
         self.sessions.append(self.current_session)
 
         return self.current_session
+
+    def answer_question(self, session_id, user_id, answer):
+        if not self.current_session or self.current_session['session_id'] != session_id:
+            return None
+
+        question_id = self.current_session["question_id"]
+        quiz_service = QuizService()
+        score = quiz_service.check_answer(question_id, answer)
+
+        if user_id not in self.user_scores or score > self.user_scores[user_id]:
+            self.user_scores[user_id] = score
+
+        return score
 
     def refresh_session(self):
         return self.init_session()
