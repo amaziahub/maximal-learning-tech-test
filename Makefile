@@ -3,8 +3,8 @@
 
 test:
 	@echo "Running tests..."
-	venv/bin/python -m pytest
+	pytest
 
 install:
 	@echo "Installing dependencies..."
-	venv/bin/python -m pip install -r requirements.txt
+	pip install -r requirements.txt
