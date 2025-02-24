@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 from hamcrest import assert_that, equal_to, has_item, is_not, instance_of, is_
-from tech_test.session_service import SessionService
+from tech_test.session_service import SessionService, InvalidSessionError
 
 
 @pytest.fixture(autouse=True)
@@ -72,7 +72,6 @@ def test_answer_question_correctly(session_service):
 
 @patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)
 def test_answer_question_incorrectly(session_service):
-
     session_data = session_service.init_session()
     user_id = "user_123"
     user_answer = "London"
@@ -86,7 +85,6 @@ def test_answer_question_incorrectly(session_service):
 
 @patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)
 def test_answer_question_with_highest_score(session_service):
-
     correct_answer_session_id = session_service.init_session()['session_id']
     correct_user_id = "user_123"
     correct_user_answer = "Paris"
@@ -103,7 +101,6 @@ def test_answer_question_with_highest_score(session_service):
 
 @patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)
 def test_answer_question_with_higher_score(session_service):
-
     close_to_correct_session_id = session_service.init_session()['session_id']
     close_to_correct_user_id = "user_123"
     close_to_correct_answer = "Pariss"
@@ -121,3 +118,16 @@ def test_answer_question_with_higher_score(session_service):
     session_service.answer_question(wrong_answer_session_id, wrong_user_id, correct_answer)
 
     assert_that(session_service.user_scores[wrong_user_id], equal_to(100))
+
+
+@patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)
+def test_answer_question_invalid_session(session_service):
+
+    session_service.init_session()
+    user_id = "user_123"
+    correct_answer = "Paris"
+
+    invalid_session_id = "invalid_session_id"
+
+    with pytest.raises(InvalidSessionError, match="Session not found or expired"):
+        session_service.answer_question(user_id, correct_answer, invalid_session_id)

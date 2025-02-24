@@ -34,7 +34,7 @@ class SessionService:
 
     def answer_question(self, session_id, user_id, answer):
         if not self.current_session or self.current_session['session_id'] != session_id:
-            return None
+            raise InvalidSessionError("Session not found or expired")
 
         question_id = self.current_session["question_id"]
         quiz_service = QuizService()
@@ -47,3 +47,9 @@ class SessionService:
 
     def refresh_session(self):
         return self.init_session()
+
+
+class InvalidSessionError(Exception):
+    def __init__(self, message="Invalid session ID"):
+        self.message = message
+        super().__init__(self.message)
