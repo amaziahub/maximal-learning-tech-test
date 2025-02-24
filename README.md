@@ -47,6 +47,8 @@ class QuizWise:
         return self.session_service.get_score(session_id, user_id)
 ```
 
+---
+
 ### Session Lifecycle
 
 `init_session()`: Initializes a new quiz session. Only one session runs at a time.
@@ -56,10 +58,14 @@ class QuizWise:
 `get_score(session_id, user_id)`: Retrieves the user's score once the session is closed. client should poll/long poll
 to get the status of the score.
 
+---
+
 ### Timer Service
 
 The Timer Service automatically refreshes the session every 60 seconds by calling session_service.refresh_session(). 
 Before a new session starts, the previous session is closed to determine the top scorer.
+
+---
 
 ### Running Tests
 ```shell
