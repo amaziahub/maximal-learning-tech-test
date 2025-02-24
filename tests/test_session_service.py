@@ -1,8 +1,20 @@
 from unittest.mock import patch
 
-from hamcrest import assert_that, equal_to, has_entry, is_not
-
+import pytest
+from hamcrest import assert_that, equal_to, has_item, is_not, instance_of, is_
 from tech_test.session_service import SessionService
+
+
+@pytest.fixture(autouse=True)
+def cleanup_sessions(session_service):
+    session_service.sessions.clear()
+    session_service.current_session = None
+    yield
+
+
+@pytest.fixture
+def session_service():
+    return SessionService()
 
 
 def mocked_question(*args, **kwargs):
@@ -10,38 +22,37 @@ def mocked_question(*args, **kwargs):
 
 
 @patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)
-def test_init_session_for_user():
-    user_id = "user_123"
+def test_init_session(session_service):
+    session_data = session_service.init_session()
+
+    assert_that(session_data['question_id'], equal_to(1))
+    assert_that(session_data['question'], equal_to("What is the capital of France?"))
+    assert_that(session_data['session_id'], instance_of(str))
+
+
+@patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)
+def test_session_is_stored_in_memory(session_service):
+    session_data = session_service.init_session()
+    session_service.init_session()
+    assert_that(session_service.sessions, has_item(session_data))
+
+
+@patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)
+def test_session_replacement(session_service):
+    first_session = session_service.init_session()
+    second_session = session_service.init_session()
+
+    assert_that(first_session, is_not(equal_to(second_session)))
+    assert_that(session_service.sessions, has_item(first_session))
+    assert_that(session_service.current_session, is_(second_session))
+
+
+@patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)
+def test_refresh_session():
     session_service = SessionService()
-    session_data = session_service.init_session_for_user(user_id)
+    first_session = session_service.init_session()
+    refreshed_session = session_service.refresh_session()
 
-    assert_that(session_data['user_id'], user_id)
-    assert_that(session_data['question_id'], 1)
-    assert_that(session_data['question'], "What is the capital of France?")
-    assert isinstance(session_data['session_id'], str)
-
-
-def test_multiple_users():
-    user_id_1 = "user_123"
-    user_id_2 = "user_456"
-
-    session_service = SessionService()
-
-    session_data_1 = session_service.init_session_for_user(user_id_1)
-    session_data_2 = session_service.init_session_for_user(user_id_2)
-
-    assert_that(session_data_1['user_id'], equal_to(user_id_1))
-    assert_that(session_data_2['user_id'], equal_to(user_id_2))
-
-    assert_that(session_data_1['session_id'], is_not(equal_to(session_data_2['session_id'])))
-    assert_that(session_data_1['user_id'], is_not(equal_to(session_data_2['user_id'])))
-
-
-def test_session_is_stored_in_memory():
-    user_id = "user_123"
-
-    session_service = SessionService()
-    session_data = session_service.init_session_for_user(user_id)
-
-    has_entry(session_service.sessions, user_id)
-    assert_that(session_service.sessions[user_id], session_data)
+    assert_that(first_session, is_not(equal_to(refreshed_session)))
+    assert_that(session_service.sessions, has_item(refreshed_session))
+    assert_that(session_service.current_session, is_(refreshed_session))
