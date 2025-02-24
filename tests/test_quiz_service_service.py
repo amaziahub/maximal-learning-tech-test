@@ -1,7 +1,7 @@
 import pytest
 from hamcrest import assert_that, has_entry
 
-from tech_test.quiz_service import QuizService
+from tech_test.services.quiz_service import QuizService
 
 
 @pytest.fixture

@@ -32,7 +32,8 @@ pip install -r requirements.txt
 The main interface for QuizWise is as follows:
 
 ```python
-from tech_test.session_service import SessionService
+from tech_test.services.session_service import SessionService
+
 
 class QuizWise:
     session_service = SessionService()

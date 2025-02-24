@@ -1,4 +1,4 @@
-from tech_test.session_service import SessionService
+from tech_test.services.session_service import SessionService
 
 
 class QuizWise:

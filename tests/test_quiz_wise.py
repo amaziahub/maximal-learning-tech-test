@@ -4,7 +4,7 @@ import pytest
 from hamcrest import assert_that
 
 from tech_test.quiz_wize import QuizWise
-from tech_test.timer_service import TimerService
+from tech_test.services.timer_service import TimerService
 
 
 # Mocking the QuizService to return a fixed question
@@ -17,7 +17,7 @@ def quizwise():
     return QuizWise()
 
 
-@patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)
+@patch('tech_test.services.quiz_service.QuizService.get_question', new=mocked_question)
 def test_game_scenario_with_session_refresh_and_timer(quizwise):
     timer_service = TimerService(quizwise.session_service)
     timer_service.run = lambda: quizwise.session_service.refresh_session()

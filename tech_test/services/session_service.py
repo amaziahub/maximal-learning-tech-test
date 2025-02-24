@@ -1,7 +1,7 @@
 import uuid
 from time import time
 
-from tech_test.quiz_service import QuizService
+from tech_test.services.quiz_service import QuizService
 
 
 class SessionService:
