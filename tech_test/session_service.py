@@ -11,6 +11,10 @@ class SessionService:
         self.user_scores = {}
 
     def init_session(self):
+
+        if self.current_session:
+            return self.current_session
+
         session_id = str(uuid.uuid4())
 
         quiz_service = QuizService()
@@ -46,7 +50,13 @@ class SessionService:
         return score
 
     def refresh_session(self):
+        if self.current_session:
+            self.sessions.append(self.current_session)
+        self.current_session = None
         return self.init_session()
+
+    def keep_alive(self, session_id, user_id):
+        pass
 
 
 class InvalidSessionError(Exception):

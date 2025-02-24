@@ -2,7 +2,6 @@ import time
 
 
 class TimerService:
-
     def __init__(self, session_service):
         self.session_service = session_service
         self.running = False

@@ -38,16 +38,6 @@ def test_session_is_stored_in_memory(session_service):
 
 
 @patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)
-def test_session_replacement(session_service):
-    first_session = session_service.init_session()
-    second_session = session_service.init_session()
-
-    assert_that(first_session, is_not(equal_to(second_session)))
-    assert_that(session_service.sessions, has_item(first_session))
-    assert_that(session_service.current_session, is_(second_session))
-
-
-@patch('tech_test.quiz_service.QuizService.get_question', new=mocked_question)
 def test_refresh_session(session_service):
     first_session = session_service.init_session()
     refreshed_session = session_service.refresh_session()
